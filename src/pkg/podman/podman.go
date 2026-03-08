@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/HarryMichal/go-version"
@@ -220,11 +221,14 @@ func GetVersion() (string, error) {
 	}
 
 	var stdout bytes.Buffer
+	var stderr strings.Builder
 
 	logLevelString := LogLevel.String()
 	args := []string{"--log-level", logLevelString, "version", "--format", "json"}
 
-	if err := shell.Run("podman", nil, &stdout, nil, args...); err != nil {
+	if err := shell.Run("podman", nil, &stdout, &stderr, args...); err != nil {
+		errString := stderr.String()
+		logrus.Debugf("Getting the podman version failed: %s", errString)
 		return "", err
 	}
 
