@@ -161,7 +161,7 @@ func initContainer(cmd *cobra.Command, args []string) error {
 		initContainerFlags.gid = initContainerFlags.uid
 	}
 
-	utils.EnsureXdgRuntimeDirIsSet(initContainerFlags.uid)
+	utils.EnsureXdgRuntimeDirIsSet(strconv.Itoa(initContainerFlags.uid))
 
 	logrus.Debug("Creating legacy /run/.toolboxenv")
 

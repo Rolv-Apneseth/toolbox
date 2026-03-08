@@ -236,15 +236,17 @@ func CallFlatpakSessionHelper() (string, error) {
 	return path, nil
 }
 
-func EnsureXdgRuntimeDirIsSet(uid int) {
-	if _, ok := os.LookupEnv("XDG_RUNTIME_DIR"); !ok {
-		logrus.Debug("XDG_RUNTIME_DIR is unset")
-
-		xdgRuntimeDir := fmt.Sprintf("/run/user/%d", uid)
-		os.Setenv("XDG_RUNTIME_DIR", xdgRuntimeDir)
-
-		logrus.Debugf("XDG_RUNTIME_DIR set to %s", xdgRuntimeDir)
+func EnsureXdgRuntimeDirIsSet(uid string) {
+	if dir := os.Getenv("XDG_RUNTIME_DIR"); dir != "" {
+		return
 	}
+
+	logrus.Debug("XDG_RUNTIME_DIR is unset")
+
+	xdgRuntimeDir := fmt.Sprintf("/run/user/%s", uid)
+	os.Setenv("XDG_RUNTIME_DIR", xdgRuntimeDir)
+
+	logrus.Debugf("XDG_RUNTIME_DIR set to %s", xdgRuntimeDir)
 }
 
 func Flock(path string, how int) (*os.File, error) {

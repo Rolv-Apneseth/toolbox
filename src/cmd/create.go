@@ -268,6 +268,7 @@ func createContainer(container, image, release, authFile string, showCommandToEn
 			return err
 		}
 	} else {
+		utils.EnsureXdgRuntimeDirIsSet(currentUser.Uid)
 		xdgRuntimeDir := os.Getenv("XDG_RUNTIME_DIR")
 		xdgRuntimeDirEnvArg := "XDG_RUNTIME_DIR=" + xdgRuntimeDir
 		xdgRuntimeDirEnv = []string{"--env", xdgRuntimeDirEnvArg}
