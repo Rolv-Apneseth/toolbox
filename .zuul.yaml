@@ -45,7 +45,9 @@
       nodes:
         - name: fedora-rawhide
           label: cloud-fedora-rawhide
-    pre-run: playbooks/setup-env-restricted.yaml
+    vars:
+      dependencies_playbook: dependencies-fedora-restricted.yaml
+    pre-run: playbooks/setup-env.yaml
     run: playbooks/unit-test.yaml
 
 - job:
