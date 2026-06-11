@@ -182,6 +182,110 @@
     pre-run: playbooks/setup-env.yaml
     run: playbooks/system-test-runtime-environment-ubuntu.yaml
 
+- job:
+    name: system-test-fedora-coreos
+    abstract: true
+    voting: false
+    timeout: 6300
+    vars:
+      dependencies_playbook: dependencies-fedora-coreos.yaml
+      # Redirect installs from read-only /usr to writable /usr/local
+      meson_setup_args: >-
+        -Dfish_completions_dir=/usr/local/share/fish/vendor_completions.d
+        -Dprofile_dir=/usr/local/share/profile.d
+        -Dtmpfiles_dir=/usr/local/lib/tmpfiles.d
+    pre-run: playbooks/setup-env.yaml
+
+- job:
+    name: system-test-fedora-coreos-next-commands-options
+    parent: system-test-fedora-coreos
+    description: Run Toolbx's commands-options system tests in Fedora CoreOS next
+    nodeset:
+      nodes:
+        - name: fedora-coreos-next
+          label: cloud-fedora-coreos-next
+    run: playbooks/system-test-commands-options.yaml
+
+- job:
+    name: system-test-fedora-coreos-next-runtime-environment-arch-fedora
+    parent: system-test-fedora-coreos
+    description: Run Toolbx's (arch-fedora,runtime-environment) system tests in Fedora CoreOS next
+    nodeset:
+      nodes:
+        - name: fedora-coreos-next
+          label: cloud-fedora-coreos-next
+    run: playbooks/system-test-runtime-environment-arch-fedora.yaml
+
+- job:
+    name: system-test-fedora-coreos-next-runtime-environment-ubuntu
+    parent: system-test-fedora-coreos
+    description: Run Toolbx's (runtime-environment,ubuntu) system tests in Fedora CoreOS next
+    nodeset:
+      nodes:
+        - name: fedora-coreos-next
+          label: cloud-fedora-coreos-next
+    run: playbooks/system-test-runtime-environment-ubuntu.yaml
+
+- job:
+    name: system-test-fedora-coreos-stable-commands-options
+    parent: system-test-fedora-coreos
+    description: Run Toolbx's commands-options system tests in Fedora CoreOS stable
+    nodeset:
+      nodes:
+        - name: fedora-coreos-stable
+          label: cloud-fedora-coreos-stable
+    run: playbooks/system-test-commands-options.yaml
+
+- job:
+    name: system-test-fedora-coreos-stable-runtime-environment-arch-fedora
+    parent: system-test-fedora-coreos
+    description: Run Toolbx's (arch-fedora,runtime-environment) system tests in Fedora CoreOS stable
+    nodeset:
+      nodes:
+        - name: fedora-coreos-stable
+          label: cloud-fedora-coreos-stable
+    run: playbooks/system-test-runtime-environment-arch-fedora.yaml
+
+- job:
+    name: system-test-fedora-coreos-stable-runtime-environment-ubuntu
+    parent: system-test-fedora-coreos
+    description: Run Toolbx's (runtime-environment,ubuntu) system tests in Fedora CoreOS stable
+    nodeset:
+      nodes:
+        - name: fedora-coreos-stable
+          label: cloud-fedora-coreos-stable
+    run: playbooks/system-test-runtime-environment-ubuntu.yaml
+
+- job:
+    name: system-test-fedora-coreos-testing-commands-options
+    parent: system-test-fedora-coreos
+    description: Run Toolbx's commands-options system tests in Fedora CoreOS testing
+    nodeset:
+      nodes:
+        - name: fedora-coreos-testing
+          label: cloud-fedora-coreos-testing
+    run: playbooks/system-test-commands-options.yaml
+
+- job:
+    name: system-test-fedora-coreos-testing-runtime-environment-arch-fedora
+    parent: system-test-fedora-coreos
+    description: Run Toolbx's (arch-fedora,runtime-environment) system tests in Fedora CoreOS testing
+    nodeset:
+      nodes:
+        - name: fedora-coreos-testing
+          label: cloud-fedora-coreos-testing
+    run: playbooks/system-test-runtime-environment-arch-fedora.yaml
+
+- job:
+    name: system-test-fedora-coreos-testing-runtime-environment-ubuntu
+    parent: system-test-fedora-coreos
+    description: Run Toolbx's (runtime-environment,ubuntu) system tests in Fedora CoreOS testing
+    nodeset:
+      nodes:
+        - name: fedora-coreos-testing
+          label: cloud-fedora-coreos-testing
+    run: playbooks/system-test-runtime-environment-ubuntu.yaml
+
 - project:
     periodic:
       jobs:
@@ -197,6 +301,15 @@
         - system-test-fedora-42-commands-options
         - system-test-fedora-42-runtime-environment-arch-fedora
         - system-test-fedora-42-runtime-environment-ubuntu
+        - system-test-fedora-coreos-next-commands-options
+        - system-test-fedora-coreos-next-runtime-environment-arch-fedora
+        - system-test-fedora-coreos-next-runtime-environment-ubuntu
+        - system-test-fedora-coreos-stable-commands-options
+        - system-test-fedora-coreos-stable-runtime-environment-arch-fedora
+        - system-test-fedora-coreos-stable-runtime-environment-ubuntu
+        - system-test-fedora-coreos-testing-commands-options
+        - system-test-fedora-coreos-testing-runtime-environment-arch-fedora
+        - system-test-fedora-coreos-testing-runtime-environment-ubuntu
     check:
       jobs:
         - unit-test
@@ -214,6 +327,15 @@
         - system-test-fedora-42-commands-options
         - system-test-fedora-42-runtime-environment-arch-fedora
         - system-test-fedora-42-runtime-environment-ubuntu
+        - system-test-fedora-coreos-next-commands-options
+        - system-test-fedora-coreos-next-runtime-environment-arch-fedora
+        - system-test-fedora-coreos-next-runtime-environment-ubuntu
+        - system-test-fedora-coreos-stable-commands-options
+        - system-test-fedora-coreos-stable-runtime-environment-arch-fedora
+        - system-test-fedora-coreos-stable-runtime-environment-ubuntu
+        - system-test-fedora-coreos-testing-commands-options
+        - system-test-fedora-coreos-testing-runtime-environment-arch-fedora
+        - system-test-fedora-coreos-testing-runtime-environment-ubuntu
     gate:
       jobs:
         - unit-test
@@ -231,3 +353,12 @@
         - system-test-fedora-42-commands-options
         - system-test-fedora-42-runtime-environment-arch-fedora
         - system-test-fedora-42-runtime-environment-ubuntu
+        - system-test-fedora-coreos-next-commands-options
+        - system-test-fedora-coreos-next-runtime-environment-arch-fedora
+        - system-test-fedora-coreos-next-runtime-environment-ubuntu
+        - system-test-fedora-coreos-stable-commands-options
+        - system-test-fedora-coreos-stable-runtime-environment-arch-fedora
+        - system-test-fedora-coreos-stable-runtime-environment-ubuntu
+        - system-test-fedora-coreos-testing-commands-options
+        - system-test-fedora-coreos-testing-runtime-environment-arch-fedora
+        - system-test-fedora-coreos-testing-runtime-environment-ubuntu
