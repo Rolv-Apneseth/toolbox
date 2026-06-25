@@ -116,9 +116,10 @@ function _pull_and_cache_distro_image() {
   local -i ret_val
 
   for ((j = 0; j < num_of_retries; j++)); do
-    error_message="$( (skopeo copy --dest-compress \
-                          "docker://${image}" \
-                          "dir:${IMAGE_CACHE_DIR}/${image_archive}" >/dev/null) 2>&1)"
+    error_message="$( (skopeo copy \
+                         --dest-compress \
+                         "docker://${image}" \
+                         "dir:${IMAGE_CACHE_DIR}/${image_archive}" >/dev/null) 2>&1)"
     ret_val="$?"
 
     if [ "$ret_val" -eq 0 ]; then
@@ -211,9 +212,10 @@ function _setup_docker_registry() {
   assert_success
 
   # Add fedora-toolbox:34 image to the registry
-  run skopeo copy --dest-authfile "${BATS_SUITE_TMPDIR}/authfile.json" \
-    dir:"${IMAGE_CACHE_DIR}"/fedora-toolbox-34 \
-    docker://"${DOCKER_REG_URI}"/fedora-toolbox:34
+  run skopeo copy \
+        --dest-authfile "${BATS_SUITE_TMPDIR}/authfile.json" \
+        dir:"${IMAGE_CACHE_DIR}"/fedora-toolbox-34 \
+        docker://"${DOCKER_REG_URI}"/fedora-toolbox:34
   assert_success
 
   run rm "${BATS_SUITE_TMPDIR}/authfile.json"
@@ -331,7 +333,9 @@ function pull_distro_image() {
   fi
 
   # https://github.com/containers/skopeo/issues/547 for the options for containers-storage
-  run skopeo copy "dir:${IMAGE_CACHE_DIR}/${image_archive}" "containers-storage:[overlay@$TOOLBX_ROOTLESS_STORAGE_PATH+$TOOLBX_ROOTLESS_STORAGE_PATH]${image}"
+  run skopeo copy \
+        "dir:${IMAGE_CACHE_DIR}/${image_archive}" \
+        "containers-storage:[overlay@$TOOLBX_ROOTLESS_STORAGE_PATH+$TOOLBX_ROOTLESS_STORAGE_PATH]${image}"
 
   # shellcheck disable=SC2154
   if [ "$status" -ne 0 ]; then
@@ -364,8 +368,8 @@ function pull_default_image_and_copy() {
 
   # https://github.com/containers/skopeo/issues/547 for the options for containers-storage
   run skopeo copy \
-      "containers-storage:[overlay@$TOOLBX_ROOTLESS_STORAGE_PATH+$TOOLBX_ROOTLESS_STORAGE_PATH]$image" \
-      "containers-storage:[overlay@$TOOLBX_ROOTLESS_STORAGE_PATH+$TOOLBX_ROOTLESS_STORAGE_PATH]$image-copy"
+        "containers-storage:[overlay@$TOOLBX_ROOTLESS_STORAGE_PATH+$TOOLBX_ROOTLESS_STORAGE_PATH]$image" \
+        "containers-storage:[overlay@$TOOLBX_ROOTLESS_STORAGE_PATH+$TOOLBX_ROOTLESS_STORAGE_PATH]$image-copy"
 
   if [ "$status" -ne 0 ]; then
     echo "Failed to copy image $image to $image-copy"
