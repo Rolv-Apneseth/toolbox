@@ -205,6 +205,23 @@ function _setup_docker_registry() {
     "${IMAGES[docker-reg]}"
   assert_success
 
+  # Ensure the registry is ready
+  local registry_ready=false
+  local -i retries
+  for ((retries = 0; retries < 30; retries++)); do
+    if timeout 5 openssl s_client \
+         -connect "${DOCKER_REG_URI}" \
+         -CAfile "${DOCKER_REG_CERTS_DIR}/domain.crt" \
+         </dev/null >/dev/null 2>&1; then
+      registry_ready=true
+      break
+    fi
+    sleep 1
+  done
+  if ! $registry_ready; then
+    fail "Docker registry at ${DOCKER_REG_URI} did not reach a ready state"
+  fi
+
   run podman login \
     --authfile "${BATS_SUITE_TMPDIR}/authfile.json" \
     --username user \
