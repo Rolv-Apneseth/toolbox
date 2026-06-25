@@ -204,6 +204,8 @@ function _setup_docker_registry() {
     "${IMAGES[docker-reg]}"
   assert_success
 
+  _wait_for_docker_registry
+
   run podman login \
     --authfile "${BATS_SUITE_TMPDIR}/authfile.json" \
     --username user \
@@ -220,6 +222,59 @@ function _setup_docker_registry() {
 
   run rm "${BATS_SUITE_TMPDIR}/authfile.json"
   assert_success
+}
+
+
+function _wait_for_docker_registry() {
+  local error_details
+  local error_message
+  local -i max_retries=30
+  local -i ret_val=1
+  local -i retries
+
+  for ((retries = 0; retries < max_retries; retries++)); do
+    ret_val=0
+    error_details="$(timeout 5s openssl s_client \
+                                  -CAfile "$DOCKER_REG_CERTS_DIR/domain.crt" \
+                                  -connect "$DOCKER_REG_URI" </dev/null 2>&1 >/dev/null)" || ret_val="$?"
+
+    case "$ret_val" in
+      0)
+        break
+        ;;
+      125)
+        error_message="timeout(1) failed"
+        break
+        ;;
+      126)
+        error_message="Failed to invoke openssl(1) or timeout(1)"
+        break
+        ;;
+      127)
+        error_message="openssl(1) not found"
+        break
+        ;;
+      137)
+        error_message="SIGKILL received by openssl(1) or timeout(1)"
+        break
+        ;;
+    esac
+
+    sleep 1s
+  done
+
+  if [ "$ret_val" -ne 0 ]; then
+    if [ "$retries" -eq "$max_retries" ]; then
+      error_message="Docker registry at $DOCKER_REG_URI did not reach a ready state"
+    fi
+
+    echo "$error_message" >&2
+    if [ "$error_details" != "" ]; then
+      echo "$error_details" >&2
+    fi
+  fi
+
+  return "$ret_val"
 }
 
 
