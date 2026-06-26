@@ -42,7 +42,7 @@ readonly TOOLBX_TEST_SYSTEM_TAGS="${TOOLBX_TEST_SYSTEM_TAGS:-$TOOLBX_TEST_SYSTEM
 # Images
 declare -Ag IMAGES=([arch]="quay.io/toolbx/arch-toolbox" \
                    [busybox]="quay.io/toolbox_tests/busybox" \
-                   [docker-reg]="quay.io/toolbox_tests/registry" \
+                   [docker-reg]="ghcr.io/distribution/distribution:3" \
                    [fedora]="registry.fedoraproject.org/fedora-toolbox" \
                    [rhel]="registry.access.redhat.com/ubi8/toolbox" \
                    [ubuntu]="quay.io/toolbx/ubuntu-toolbox")
