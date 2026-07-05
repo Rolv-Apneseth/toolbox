@@ -42,29 +42,29 @@ setup_suite() {
   _setup_environment
 
   if echo "$TOOLBX_TEST_SYSTEM_TAGS" | grep "arch" >/dev/null 2>/dev/null; then
-    _pull_and_cache_distro_image arch latest || false
+    _pull_and_cache_distro_image arch latest
   fi
 
   if echo "$TOOLBX_TEST_SYSTEM_TAGS" | grep "fedora" >/dev/null 2>/dev/null; then
     # Cache the default image for the system
-    _pull_and_cache_distro_image "$system_id" "$system_version" || false
+    _pull_and_cache_distro_image "$system_id" "$system_version"
     # Cache all images that will be needed during the tests
-    _pull_and_cache_distro_image fedora 34 || false
-    _pull_and_cache_distro_image rhel 8.10 || false
+    _pull_and_cache_distro_image fedora 34
+    _pull_and_cache_distro_image rhel 8.10
   fi
 
   if echo "$TOOLBX_TEST_SYSTEM_TAGS" | grep "ubuntu" >/dev/null 2>/dev/null; then
-    _pull_and_cache_distro_image ubuntu 16.04 || false
-    _pull_and_cache_distro_image ubuntu 18.04 || false
-    _pull_and_cache_distro_image ubuntu 20.04 || false
+    _pull_and_cache_distro_image ubuntu 16.04
+    _pull_and_cache_distro_image ubuntu 18.04
+    _pull_and_cache_distro_image ubuntu 20.04
   fi
 
   if echo "$TOOLBX_TEST_SYSTEM_TAGS" | grep "commands-options" >/dev/null 2>/dev/null; then
-    _pull_and_cache_distro_image busybox || false
+    _pull_and_cache_distro_image busybox
     # If run on Fedora Rawhide, cache 2 extra images (previous Fedora versions)
     if is_fedora_rawhide && (echo "$TOOLBX_TEST_SYSTEM_TAGS" | grep "fedora" >/dev/null 2>/dev/null); then
-      _pull_and_cache_distro_image fedora "$((system_version-1))" || false
-      _pull_and_cache_distro_image fedora "$((system_version-2))" || false
+      _pull_and_cache_distro_image fedora "$((system_version-1))"
+      _pull_and_cache_distro_image fedora "$((system_version-2))"
     fi
 
     _setup_docker_registry
