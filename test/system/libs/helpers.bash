@@ -117,10 +117,10 @@ function _pull_and_cache_distro_image() {
 
   for ((j = 0; j < num_of_retries; j++)); do
     ret_val=0
-    error_message="$( (skopeo --command-timeout 10m copy \
-                         --dest-compress \
-                         "docker://${image}" \
-                         "dir:${IMAGE_CACHE_DIR}/${image_archive}" >/dev/null) 2>&1)" || ret_val="$?"
+    error_message="$(skopeo --command-timeout 10m copy \
+                       --dest-compress \
+                       "docker://${image}" \
+                       "dir:${IMAGE_CACHE_DIR}/${image_archive}" 2>&1 >/dev/null)" || ret_val="$?"
 
     if [ "$ret_val" -eq 0 ]; then
       cached=true
