@@ -78,7 +78,6 @@ function _setup_containers_storage() {
 # Only use during test suite setup for caching all images to be used throughout
 # tests.
 function _pull_and_cache_distro_image() {
-  local num_of_retries=5
   local timeout=10
   local cached=false
   local distro
@@ -112,10 +111,11 @@ function _pull_and_cache_distro_image() {
   fi
 
   local error_message
-  local -i j
+  local max_retries=5
   local -i ret_val
+  local -i retries
 
-  for ((j = 0; j < num_of_retries; j++)); do
+  for ((retries = 0; retries < max_retries; retries++)); do
     ret_val=0
     error_message="$(skopeo --command-timeout 10m copy \
                        --dest-compress \
@@ -508,10 +508,10 @@ function container_started() {
 
   start_container "$container_name"
 
-  local -i j
-  local num_of_retries=5
+  local max_retries=5
+  local -i retries
 
-  for ((j = 0; j < num_of_retries; j++)); do
+  for ((retries = 0; retries < max_retries; retries++)); do
     run --separate-stderr podman logs "$container_name"
 
     # shellcheck disable=SC2154
@@ -532,7 +532,7 @@ function container_started() {
   done
 
   if [ "$ret_val" -ne 0 ]; then
-    if [ "$j" -eq "$num_of_retries" ]; then
+    if [ "$retries" -eq "$max_retries" ]; then
       fail "Failed to initialize container $container_name"
     fi
 
