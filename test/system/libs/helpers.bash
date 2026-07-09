@@ -111,7 +111,7 @@ function _pull_and_cache_distro_image() {
   fi
 
   local error_message
-  local max_retries=5
+  local -i max_retries=5
   local -i ret_val
   local -i retries
 
@@ -508,7 +508,7 @@ function container_started() {
 
   start_container "$container_name"
 
-  local max_retries=5
+  local -i max_retries=5
   local -i retries
 
   for ((retries = 0; retries < max_retries; retries++)); do
