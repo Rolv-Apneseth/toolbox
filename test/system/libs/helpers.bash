@@ -31,8 +31,12 @@ readonly ROOTLESS_PODMAN_RUNROOT_DIR="$BATS_SUITE_TMPDIR/runroot"
 readonly DOCKER_REG_ROOT="$BATS_SUITE_TMPDIR/docker-registry-root"
 readonly DOCKER_REG_CERTS_DIR="$BATS_SUITE_TMPDIR/certs"
 readonly DOCKER_REG_AUTH_DIR="$BATS_SUITE_TMPDIR/auth"
-readonly DOCKER_REG_URI="localhost:50000"
 readonly DOCKER_REG_NAME="docker-registry"
+# Store the registry URI in a file so that loading this script from different
+# test processes will still use the same URI for the same test suite run. The
+# contents of the file are set when setting up the local Docker registry.
+readonly DOCKER_REG_URI_FILE="$BATS_SUITE_TMPDIR/docker-reg-uri"
+DOCKER_REG_URI="$(cat "$DOCKER_REG_URI_FILE" 2>/dev/null || echo "")"
 
 # Podman and Toolbx commands to run
 readonly TOOLBX="${TOOLBX:-$(command -v toolbox)}"
@@ -166,12 +170,6 @@ function _setup_docker_registry() {
     -out "${DOCKER_REG_CERTS_DIR}"/domain.crt
   assert_success
 
-  # Add certificate to Podman's trusted certificates (rootless)
-  run mkdir -p "$HOME"/.config/containers/certs.d/"${DOCKER_REG_URI}"
-  assert_success
-  run cp "${DOCKER_REG_CERTS_DIR}"/domain.crt "$HOME"/.config/containers/certs.d/"${DOCKER_REG_URI}"/domain.crt
-  assert_success
-
   # Create a registry user
   # username: user; password: user
   run mkdir -p "${DOCKER_REG_AUTH_DIR}"
@@ -197,11 +195,23 @@ function _setup_docker_registry() {
     --env REGISTRY_HTTP_TLS_KEY=/certs/domain.key \
     --name "${DOCKER_REG_NAME}" \
     --privileged \
-    --publish 50000:5000 \
+    --publish 5000 \
     --rm \
     --volume "${DOCKER_REG_AUTH_DIR}":/auth \
     --volume "${DOCKER_REG_CERTS_DIR}":/certs \
     "${IMAGES[docker-reg]}"
+  assert_success
+
+  # Determine the randomly assigned host port and persist the DOCKER_REG_URI to a file
+  local docker_reg_port
+  docker_reg_port="$(podman --root "${DOCKER_REG_ROOT}" port "${DOCKER_REG_NAME}" 5000)"
+  DOCKER_REG_URI="localhost:${docker_reg_port##*:}"
+  echo "$DOCKER_REG_URI" > "$DOCKER_REG_URI_FILE"
+
+  # Add certificate to Podman's trusted certificates (rootless)
+  run mkdir -p "$HOME"/.config/containers/certs.d/"${DOCKER_REG_URI}"
+  assert_success
+  run cp "${DOCKER_REG_CERTS_DIR}"/domain.crt "$HOME"/.config/containers/certs.d/"${DOCKER_REG_URI}"/domain.crt
   assert_success
 
   _wait_for_docker_registry
